@@ -30,31 +30,32 @@ class Element2Pdf {
   /**
    * entry function
    */
-  main() {
+  main(): void{
     const { pageBreak } = this.options;
     const { className: pageBreakClassName } = pageBreak || {};
 
     if (pageBreakClassName) {
-      const groups = this.getPageBreakPositions();
-
-      console.log('--- groups ---', groups);
+      this.addPageBreakSpace();
     }
 
-    this.genPdf();
+    setTimeout(() => {
+      this.genPdf();
+    }, 1000)
+
 
   }
 
   /**
-   * get all page break position
+   * insert space to page break in order to full page
    */
-  getPageBreakPositions() {
+  addPageBreakSpace(): void{
     const { root, pageBreak } = this.options;
     const { className: pageBreakClassName, type } = pageBreak;
 
     // root element px width
     const rootPxWidth = root.offsetWidth;
-    // root element px height
-    const rootPxHeight = root.offsetHeight;
+    // // root element px height
+    // const rootPxHeight = root.offsetHeight;
 
     const pagePxHeight = A4_HEIGHT / A4_WIDTH * rootPxWidth;
 
@@ -82,37 +83,16 @@ class Element2Pdf {
       }
 
     }));
-
-    // const groups = [];
-    // let groupIndex = 0;
-
-    // Array.from(root.children).forEach((child: HTMLElement, childIndex) => {
-    //   groups[groupIndex] = groups[groupIndex] || [];
-
-    //   groups[groupIndex].push({
-    //     pageIndex: groupIndex,
-    //     ele: child,
-    //     position: {
-    //       top: child.offsetTop / rootPxHeight,
-    //       bottom: (child.offsetTop + child.offsetHeight) / rootPxHeight,
-    //       left: child.offsetLeft / rootPxWidth,
-    //       right: (child.offsetLeft + child.offsetWidth) / rootPxWidth
-    //     }
-    //   });
-
-    //   if (child.classList.contains(pageBreakClassName)) {
-    //     groupIndex++;
-    //   }
-    // });
-
-    // return groups;
   }
 
   /**
    * generate a pdf file
    */
-  genPdf() {
+  genPdf(): void{
     const { root, filename } = this.options;
+
+    // hack the html2canvas problem: https://github.com/niklasvh/html2canvas/issues/1878
+    window.scrollTo(0, 0);
 
     html2canvas(root, { scale: SCALE }).then(canvas => {
       const contentWidth = canvas.width;
@@ -131,6 +111,8 @@ class Element2Pdf {
       const imgHeight = (A4_WIDTH / contentWidth) * contentHeight;
 
       const img = canvas.toDataURL("image/jpeg", 1.0);
+
+      console.log(img)
 
       while (leftHeight > 0) {
         doc.addImage(img, "jpeg", 0, yPosition, imgWidth, imgHeight);
