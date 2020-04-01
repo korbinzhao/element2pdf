@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "es5",
+    "downlevelIteration": true,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "traceResolution": true,
+    "typeRoots": ["node_modules/@types", "src/types"],
+    "baseUrl": "./",
+    "paths": {
+      "components/*": ["src/components/*"],
+    },
+    "skipLibCheck": true,
+    "lib": ["es5", "dom", "es2015.collection"]
+  },
+  "compileOnSave": false,
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/*"],
+  "awesomeTypescriptLoaderOptions": {
+    "useCache": true,
+    "transpileOnly": false,
+    "forceIsolatedModules": true,
+    "useBabel": true,
+    "babelCore": "@babel/core",
+    "reportFiles": ["assets/src/**/*.{ts,tsx}"]
+  }
+}
