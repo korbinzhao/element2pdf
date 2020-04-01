@@ -14,7 +14,7 @@ const App: FunctionComponent = () => {
             root: document.querySelector('.pdf-printer-container'),
             pageBreak: {
               className: 'page-break',
-              type: 'after'
+              type: 'before'
             }
           });
         }}>download pdf</div>
@@ -22,6 +22,9 @@ const App: FunctionComponent = () => {
         <div className="page">page111</div>
         <div className="page page-break">page222</div>
         <div className="page">page333</div>
+        <div className="page">page444</div>
+        <div className="page page-break">page555</div>
+        <div className="page">page666</div>
       </div>
     </div>
 

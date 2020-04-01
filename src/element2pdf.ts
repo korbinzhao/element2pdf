@@ -112,8 +112,6 @@ class Element2Pdf {
 
       const img = canvas.toDataURL("image/jpeg", 1.0);
 
-      console.log(img)
-
       while (leftHeight > 0) {
         doc.addImage(img, "jpeg", 0, yPosition, imgWidth, imgHeight);
         yPosition -= A4_HEIGHT;
