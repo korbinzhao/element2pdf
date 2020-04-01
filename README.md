@@ -1,5 +1,5 @@
-# react-webpack4-typescript-component-quickstart
-a quick start for a component based on react & webpack4 & typescript
+# element2pdf
+download a pdf file from a html element, with auto pagebreak or custom pagebreak based on className
 
 # development
 ```

@@ -56,27 +56,56 @@ class Element2Pdf {
     // root element px height
     const rootPxHeight = root.offsetHeight;
 
-    const groups = [];
-    let groupIndex = 0;
+    const pagePxHeight = A4_HEIGHT / A4_WIDTH * rootPxWidth;
 
-    Array.from(root.children).forEach((child: HTMLElement, childIndex) => {
-      groups[groupIndex] = groups[groupIndex] || [];
+    Array.from(document.querySelectorAll(`.${pageBreakClassName}`)).forEach(((element: HTMLElement, index) => {
+      const styles = window.getComputedStyle(element);
+      var marginTop = parseFloat(styles['marginBottom']);
 
-      groups[groupIndex].push({
-        pageIndex: groupIndex,
-        ele: child,
-        position: {
-          top: child.offsetTop / rootPxHeight,
-          left: child.offsetLeft / rootPxWidth
+      // 获取分页间隔处离页面顶部的px高度
+      const pageBreakTop = (type === 'before' ? element.offsetTop : element.offsetTop + element.offsetHeight + marginTop)
+        - root.offsetTop;
+
+      // 计算要在分割处插入间隔div元素的高度
+      const spaceHeight = pagePxHeight * (index + 1) - pageBreakTop;
+
+      if (spaceHeight > 0) {
+        const spaceEle = document.createElement('div');
+        spaceEle.classList.add('element2pdf-page-break-space');
+        spaceEle.style.height = spaceHeight + 'px';
+
+        if (type === 'before') {
+          element.parentElement.insertBefore(spaceEle, element);
+        } else {
+          element.parentElement.insertBefore(spaceEle, element.nextSibling);
         }
-      });
-
-      if (child.classList.contains(pageBreakClassName)) {
-        groupIndex++;
       }
-    });
 
-    return groups;
+    }));
+
+    // const groups = [];
+    // let groupIndex = 0;
+
+    // Array.from(root.children).forEach((child: HTMLElement, childIndex) => {
+    //   groups[groupIndex] = groups[groupIndex] || [];
+
+    //   groups[groupIndex].push({
+    //     pageIndex: groupIndex,
+    //     ele: child,
+    //     position: {
+    //       top: child.offsetTop / rootPxHeight,
+    //       bottom: (child.offsetTop + child.offsetHeight) / rootPxHeight,
+    //       left: child.offsetLeft / rootPxWidth,
+    //       right: (child.offsetLeft + child.offsetWidth) / rootPxWidth
+    //     }
+    //   });
+
+    //   if (child.classList.contains(pageBreakClassName)) {
+    //     groupIndex++;
+    //   }
+    // });
+
+    // return groups;
   }
 
   /**

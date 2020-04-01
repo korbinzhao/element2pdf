@@ -13,7 +13,8 @@ const App: FunctionComponent = () => {
           new Element2Pdf({
             root: document.querySelector('.pdf-printer-container'),
             pageBreak: {
-              className: 'page-break'
+              className: 'page-break',
+              type: 'after'
             }
           });
         }}>download pdf</div>
