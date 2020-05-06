@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import domtoimage from 'components/dom-to-image/src/dom-to-image.js';
+
 import { Options } from './types';
 
 // device pixel ratio
@@ -50,7 +51,7 @@ class Element2Pdf {
    */
   addPageBreakSpace(): void{
     const { root, pageBreak } = this.options;
-    const { className: pageBreakClassName, type } = pageBreak;
+    const { className: pageBreakClassName, type } = pageBreak || {};
 
     // root element px width
     const rootPxWidth = root.offsetWidth;
@@ -85,47 +86,77 @@ class Element2Pdf {
     }));
   }
 
+  savePdfWithPageBreak(img, imgWidth, imgHeight, contentWidth, contentHeight): void{
+
+    const { filename } = this.options;
+
+    const doc = new jsPDF("", "pt", "a4");
+
+    let yPosition = 0;
+    let leftHeight = contentHeight;
+    const PAGE_GAP = SCALE * 10;
+
+    //一页pdf显示html页面生成的canvas高度;
+    const pageHeight = (contentWidth / A4_WIDTH) * A4_HEIGHT;
+
+    while (leftHeight > 0) {
+      doc.addImage(img, "jpeg", 0, yPosition, imgWidth, imgHeight);
+      yPosition -= A4_HEIGHT;
+      leftHeight -= (pageHeight + PAGE_GAP * 2);
+
+      if (leftHeight > 0) {
+        doc.addPage();
+      }
+    }
+
+    doc.save(filename || "download.pdf");
+  }
+
+  savePdfWithoutPageBreak(img, imgWidth, imgHeight, contentWidth, contentHeight): void {
+    const { filename } = this.options;
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: [imgWidth, imgHeight]
+    });
+
+    doc.addImage(img, "jpeg", 0, 0, imgWidth, imgHeight);
+
+    doc.save(filename || "download.pdf");
+  }
+
   /**
    * generate a pdf file
    */
   genPdf(): void{
-    const { root, filename } = this.options;
+    const { root, filename, pageBreak } = this.options;
 
     // hack the html2canvas problem: https://github.com/niklasvh/html2canvas/issues/1878
     window.scrollTo(0, 0);
 
-    html2canvas(root, { scale: SCALE }).then(canvas => {
-      const contentWidth = canvas.width;
-      const contentHeight = canvas.height;
+    domtoimage.toCanvas(root)
+      .then((canvas) => {
 
-      let yPosition = 0;
+        const contentWidth = canvas.width;
+        const contentHeight = canvas.height;
+    
+        const imgWidth = A4_WIDTH;
+        const imgHeight = (A4_WIDTH / contentWidth) * contentHeight;
+    
+        const img = canvas.toDataURL("image/jpeg", 1.0);
 
-      const doc = new jsPDF("", "pt", "a4");
-
-      //一页pdf显示html页面生成的canvas高度;
-      const pageHeight = (contentWidth / A4_WIDTH) * A4_HEIGHT;
-
-      let leftHeight = contentHeight;
-
-      const imgWidth = A4_WIDTH;
-      const imgHeight = (A4_WIDTH / contentWidth) * contentHeight;
-
-      const img = canvas.toDataURL("image/jpeg", 1.0);
-
-      while (leftHeight > 0) {
-        doc.addImage(img, "jpeg", 0, yPosition, imgWidth, imgHeight);
-        yPosition -= A4_HEIGHT;
-        leftHeight -= pageHeight;
-
-        if (leftHeight > 0) {
-          doc.addPage();
+        if(pageBreak){
+          this.savePdfWithPageBreak(img, imgWidth, imgHeight, contentWidth, contentHeight);
+        } else {
+          this.savePdfWithoutPageBreak(img, imgWidth, imgHeight, contentWidth, contentHeight);
         }
-      }
-
-      doc.save(filename || "sample.pdf");
-
-    });
-
+        
+      })
+      .catch(function (error) {
+        console.error('oops, something went wrong!', error);
+      });
+   
   }
 
 }
